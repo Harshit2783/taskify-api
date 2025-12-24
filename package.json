@@ -1,0 +1,27 @@
+{
+  "name": "taskify-api",
+  "version": "1.0.0",
+  "description": "A Node.js &amp; Express REST API with JWT-based authentication, role-based authorization, and MongoDB (Mongoose) for managing user-specific tasks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harshit2783/taskify-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Harshit2783/taskify-api/issues"
+  },
+  "homepage": "https://github.com/Harshit2783/taskify-api#readme",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "mongoose": "^9.0.2",
+    "nodemon": "^3.1.11"
+  }
+}
