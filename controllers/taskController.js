@@ -8,7 +8,7 @@ const getTasks = async (req, res)=>{ // For Read operation
         res.status(200).json(tasks) 
     }
     catch(error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({"Error": error.message})
     }
 };
 
@@ -18,7 +18,7 @@ const createTask = async (req, res)=>{ // For Create Operation
         res.status(201).json(task)
     }
     catch(error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({"Error": error.message})
     }
 }
 
@@ -32,7 +32,7 @@ const updateTask = async (req, res)=>{ // For Update Operation
         res.status(200).json(task)
     }
     catch(error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({"Error": error.message})
     }
 }
 
@@ -42,7 +42,7 @@ const deleteTask = async (req, res)=>{ // For Delete operation
         res.status(200).send("Task deleted successfully")
     }
     catch(error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({"Error": error.message})
     }
 }
 module.exports = { getTasks, createTask, updateTask, deleteTask } /* I thought this is not valid syntax for writing JS objects but 

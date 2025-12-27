@@ -1,11 +1,13 @@
 const express = require("express");
 const taskRouter = require('./routes/taskRoutes')
+const authRouter = require('./routes/authRoutes')
 
 const app = express();
 
 // middlewares
-app.use(express.json());
+app.use(express.json()); // For parsing incoming json data.
 app.use('/api/tasks', taskRouter)
+app.use('/api/auth', authRouter)
 
 // routes
 app.get("/", (req, res) => {
