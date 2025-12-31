@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 const registerUser = async (req, res)=>{ // For user registration.
@@ -33,7 +34,15 @@ const loginUser = async (req, res)=>{  // For user login.
         else
         {
             if(user.password == req.body.password) // Here we are checking if the user has entered correct password or not. That means if the password sent by user(req.body.password) matches the password saved in db(user.password).
-            {res.status(200).send("Login Successful")}
+            {
+                // JWT(JSON WEB TOKEN) CREATION( Read JWT.pdf for details ).
+                const token = jwt.sign(
+                { userId: user._id },
+                process.env.JWT_SECRET,
+                { expiresIn: '1d' }
+                )
+                res.status(200).json({ token }) // Again { token }: this is object property shorthand syntax of JS.
+            }
             else
             {res.status(401).send("Wrong password")}
         }
@@ -167,3 +176,10 @@ JWT solves this by:
 
 No memory needed on the server.
 */
+
+// Now After authentication we proceeded to JWT(to understand it, read JWT.pdf but first read the above collapsed comments).
+
+/* Now there was a previous version of this authController.js file also in which we only did authentication and we added jwt
+token generaton later in this updated version of authController.js. Although we haven't made much changes from the previous 
+version to this version but you can see changes made in this file on GITHUB IN THE 9TH COMMIT MADE ON 31TH DEC 2025 NAMED 
+"Implemented JWT Creation". */
