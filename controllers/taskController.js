@@ -1,10 +1,10 @@
 // Below We have explained the concepts used in this code so read them before if u have any problem in understanding then read the code.
-
+// I have made some changes in this file later in stage 6.
 const Task = require('../models/Task')
 
 const getTasks = async (req, res)=>{ // For Read operation
     try {
-        const tasks = await Task.find()
+        const tasks = await Task.find({user: req.user})
         res.status(200).json(tasks) 
     }
     catch(error) {
@@ -14,7 +14,10 @@ const getTasks = async (req, res)=>{ // For Read operation
 
 const createTask = async (req, res)=>{ // For Create Operation
     try{
-        const task =await Task.create(req.body) // We are gonna send this req.body content from Postman.
+        const task =await Task.create({ // We are gonna send this req.body content from Postman.
+            ...req.body,     
+            user: req.user
+        }) 
         res.status(201).json(task)
     }
     catch(error) {
@@ -23,13 +26,24 @@ const createTask = async (req, res)=>{ // For Create Operation
 }
 
 const updateTask = async (req, res)=>{ // For Update Operation
-    try{ // Syntax of "findByIdAndUpdate()": Model.findByIdAndUpdate(id, data, { new: true })
-
-        const task = await Task.findByIdAndUpdate(
-            req.params.id, // This is the 'id' we are gonna send from url "/api/tasks/:id" and we are using it to find the task so that we can update it(similar process for delete operation).
-            req.body,    // Again we are gonna send this req.body content from Postman.
-            {new: true}) // This Returns the modified(updated) document rather than the original.
-        res.status(200).json(task)
+    try{ 
+        const task1 = await Task.findById(req.params.id)
+        if(!task1)
+        {
+            res.status(404).send("Task not found")
+        }
+        else 
+        {
+            if(task1.user.toString() == req.user)
+            {
+                if(req.body.user)
+                {delete req.body.user}
+                const task2 = await Task.findOneAndUpdate({_id: task1._id}, req.body, {new: true}) // {new: true} doesn't work with updateOne() and updateMany().
+                res.status(200).json(task2)
+            }
+            else
+            {res.status(403).send("You don't have permission for this action")}
+        }
     }
     catch(error) {
         res.status(500).json({"Error": error.message})
@@ -38,8 +52,21 @@ const updateTask = async (req, res)=>{ // For Update Operation
 
 const deleteTask = async (req, res)=>{ // For Delete operation
     try{
-        await Task.findByIdAndDelete(req.params.id)
-        res.status(200).send("Task deleted successfully")
+        const task = await Task.findById(req.params.id)
+        if(!task)
+        {
+            res.status(404).send("Task not found")
+        }
+        else 
+        {
+            if(task.user.toString() == req.user)
+            {
+                await Task.deleteOne({_id: task._id})
+                res.status(200).send("Task deleted successfully")
+            }
+            else
+            {res.status(403).send("You don't have permission for this action")}
+        }
     }
     catch(error) {
         res.status(500).json({"Error": error.message})
