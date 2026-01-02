@@ -1,6 +1,7 @@
 const express = require("express");
 const taskRouter = require('./routes/taskRoutes')
 const authRouter = require('./routes/authRoutes')
+const errorHandler = require('./middlewares/errorMiddleware')
 
 const app = express();
 
@@ -13,6 +14,9 @@ app.use('/api/auth', authRouter)
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+
+// Central error-handling middleware (must be registered after all routes)
+app.use(errorHandler)
 
 module.exports = app;
 

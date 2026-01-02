@@ -1,7 +1,8 @@
+// I made changes in this file in stage 7(central error handling).
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
-const registerUser = async (req, res)=>{ // For user registration.
+const registerUser = async (req, res, next)=>{ // For user registration.
     try{
         let user = await User.findOne({email: req.body.email}).select('-password') // Don't use find(), it returns [] even if no record found and [] is truthy in JS.
                                                                                    // See about "select('-password')" below.
@@ -12,11 +13,12 @@ const registerUser = async (req, res)=>{ // For user registration.
         }
         else
         {
-            res.status(409).json({"Error":"User already exists"})
+            res.status(409)
+            throw new Error("User already exists")
         }
     }
     catch(error){
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 }
 /* This ".select('-password')" EXCLUDES THE password from the returned object(It means 'user' variable doesn't recieve the actual 
@@ -24,12 +26,13 @@ password which is already saved in db but req.body still has the password sent b
 also). We do this cuz' this prevents mistakenly sending the password in response. But we haven't done this in the loginUser function 
 cuz' there we need the password for checking if the user has entered correct password or not. */
 
-const loginUser = async (req, res)=>{  // For user login.
+const loginUser = async (req, res, next)=>{  // For user login.
     try{
         let user = await User.findOne({email: req.body.email})
         if(!user)
         {
-            res.status(404).send("User Not Found, Register First")
+            res.status(404)
+            throw new Error("User Not Found, Register First")
         }
         else
         {
@@ -44,11 +47,13 @@ const loginUser = async (req, res)=>{  // For user login.
                 res.status(200).json({ token }) // Again { token }: this is object property shorthand syntax of JS.
             }
             else
-            {res.status(401).send("Wrong password")}
+            {   res.status(401)
+                throw new Error("Wrong password")
+            }
         }
     }
     catch(error){
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 }
 

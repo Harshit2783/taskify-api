@@ -1,18 +1,19 @@
 // Below We have explained the concepts used in this code so read them before if u have any problem in understanding then read the code.
 // I have made some changes in this file later in stage 6.
+// I made changes again in this file in stage 7(central error handling).
 const Task = require('../models/Task')
 
-const getTasks = async (req, res)=>{ // For Read operation
+const getTasks = async (req, res, next)=>{ // For Read operation
     try {
         const tasks = await Task.find({user: req.user})
         res.status(200).json(tasks) 
     }
     catch(error) {
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 };
 
-const createTask = async (req, res)=>{ // For Create Operation
+const createTask = async (req, res, next)=>{ // For Create Operation
     try{
         const task =await Task.create({ // We are gonna send this req.body content from Postman.
             ...req.body,     
@@ -21,16 +22,17 @@ const createTask = async (req, res)=>{ // For Create Operation
         res.status(201).json(task)
     }
     catch(error) {
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 }
 
-const updateTask = async (req, res)=>{ // For Update Operation
+const updateTask = async (req, res, next)=>{ // For Update Operation
     try{ 
         const task1 = await Task.findById(req.params.id)
         if(!task1)
         {
-            res.status(404).send("Task not found")
+            res.status(404)
+            throw new Error("Task not found")
         }
         else 
         {
@@ -42,20 +44,23 @@ const updateTask = async (req, res)=>{ // For Update Operation
                 res.status(200).json(task2)
             }
             else
-            {res.status(403).send("You don't have permission for this action")}
+            {   res.status(403)
+                throw new Error("You don't have permission for this action")
+            }
         }
     }
     catch(error) {
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 }
 
-const deleteTask = async (req, res)=>{ // For Delete operation
+const deleteTask = async (req, res, next)=>{ // For Delete operation
     try{
         const task = await Task.findById(req.params.id)
         if(!task)
         {
-            res.status(404).send("Task not found")
+            res.status(404)
+            throw new Error("Task not found")
         }
         else 
         {
@@ -65,11 +70,13 @@ const deleteTask = async (req, res)=>{ // For Delete operation
                 res.status(200).send("Task deleted successfully")
             }
             else
-            {res.status(403).send("You don't have permission for this action")}
+            {   res.status(403)
+                throw new Error("You don't have permission for this action")
+            }
         }
     }
     catch(error) {
-        res.status(500).json({"Error": error.message})
+        next(error)
     }
 }
 module.exports = { getTasks, createTask, updateTask, deleteTask } /* I thought this is not valid syntax for writing JS objects but 
